@@ -1,0 +1,28 @@
+name: Update Profile Game
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install
+      - name: Generate GIF
+        run: node game.js ${{ github.repository_owner }}
+        env:
+          CONTRIBUTION_TOKEN: ${{ secrets.CONTRIBUTION_TOKEN }} # FIXED NAME
+      - name: Commit and Push
+        run: |
+          git config user.name "GitHub-Game-Bot"
+          git config user.email "actions@github.com"
+          git add contribution-game.gif
+          git commit -m "chore: updated game stats" || exit 0
+          git push
+          
